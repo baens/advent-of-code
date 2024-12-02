@@ -1,4 +1,4 @@
-import { run } from "./part1";
+import { run } from "./part2";
 
 async function main() {
 	const file = process.argv[2];

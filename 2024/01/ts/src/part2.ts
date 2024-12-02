@@ -1,12 +1,6 @@
 import fs from "node:fs";
 import readline from "node:readline/promises";
 
-export function* pairList(list1: Array<number>, list2: Array<number>) {
-	for (let index = 0; index < list1.length; index += 1) {
-		yield [list1[index], list2[index]];
-	}
-}
-
 export async function parseFile(file: string): Promise<Array<Array<number>>> {
 	const rl = readline.createInterface({
 		input: fs.createReadStream(file),
@@ -25,17 +19,25 @@ export async function parseFile(file: string): Promise<Array<Array<number>>> {
 	return [list1, list2];
 }
 
+export function generateCountMap(list: Array<number>): Record<number, number> {
+	return list.reduce((previous, current) => {
+		if (!previous[current]) {
+			previous[current] = 0;
+		}
+
+		previous[current] += 1;
+
+		return previous;
+	}, {});
+}
+
 export async function run(file: string): Promise<number> {
 	const [list1, list2] = await parseFile(file);
 
-	list1.sort();
-	list2.sort();
+	const countMap = generateCountMap(list2);
 
-	let sum = 0;
-
-	for (const [item1, item2] of pairList(list1, list2)) {
-		sum += Math.abs(item2 - item1);
-	}
-
-	return sum;
+	return list1.reduce(
+		(previous, current) => previous + current * (countMap[current] ?? 0),
+		0,
+	);
 }
