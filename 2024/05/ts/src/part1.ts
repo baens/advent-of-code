@@ -2,24 +2,16 @@ import readline from "node:readline/promises";
 import fs from "node:fs";
 
 export async function run(input: string): Promise<number> {
-	const [board, pages] = await loadBoard(input);
-
-	const ideal = board.toIdealArray();
+	const [board, pagesList] = await loadBoard(input);
 
 	let sum = 0;
 
-	for (const p of pages) {
-		const pagesIndexes = p.map((page) => ideal.indexOf(page));
-		console.log("pages", p);
-		console.log("indexes", pagesIndexes);
-
-		if (!isSorted(pagesIndexes)) {
+	for (const pages of pagesList) {
+		if (!isSorted(pages, board)) {
 			continue;
 		}
 
-		console.log("sorted");
-
-		const middle = p[Math.floor(p.length / 2)];
+		const middle = pages[Math.floor(pages.length / 2)];
 
 		sum += middle;
 	}
@@ -27,7 +19,7 @@ export async function run(input: string): Promise<number> {
 	return sum;
 }
 
-class Pair<L, R> {
+export class Pair<L, R> {
 	public readonly left: L;
 	public readonly right: R;
 
@@ -38,21 +30,14 @@ class Pair<L, R> {
 }
 
 export class LoadOrder {
-	private numbers: Set<number> = new Set<number>();
 	private pairs: Array<Pair<number, number>> = [];
 
 	public load(raw: string) {
 		const [n1, n2] = raw.split("|").map((s) => Number.parseInt(s));
-		this.numbers.add(n1);
-		this.numbers.add(n2);
 		this.pairs.push(new Pair(n1, n2));
 	}
 
-	public toIdealArray(): Array<number> {
-		return Array.from(this.numbers).sort(this.sort.bind(this));
-	}
-
-	private sort(left: number, right: number): number {
+	public sort(left: number, right: number): number {
 		for (const pair of this.pairs) {
 			if (left === pair.left && right === pair.right) {
 				return -1;
@@ -63,16 +48,22 @@ export class LoadOrder {
 			}
 		}
 
-		return 0;
+		throw `Number pair not found ${left} ${right}`;
 	}
 }
 
-function isSorted(array: number[]): boolean {
-	for (let i = 0; i < array.length; i++) {
-		if (array[i] > array[i + 1]) {
-			return false;
+export function isSorted(array: number[], loader: LoadOrder): boolean {
+	try {
+		for (let i = 0; i < array.length - 1; i += 1) {
+			if (loader.sort(array[i], array[i + 1]) !== -1) {
+				return false;
+			}
 		}
+	} catch (e) {
+		console.log("Array", array);
+		throw e;
 	}
+
 	return true;
 }
 
