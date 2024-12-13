@@ -32,7 +32,7 @@ async function* loadLines(file: string): AsyncGenerator<string, void, void> {
 }
 
 export function isValid(answer: number, numbers: number[]): boolean {
-	for (let i = 0; i < 2 ** (numbers.length - 1); i += 1) {
+	for (let i = 0; i < 3 ** (numbers.length - 1); i += 1) {
 		const operators = i
 			.toString(3)
 			.padStart(numbers.length - 1, "0")
@@ -56,6 +56,8 @@ export function evalItems(numbers: number[], operators: string[]): number {
 				return previous + current;
 			case "*":
 				return previous * current;
+			case "|":
+				return Number.parseInt(previous.toString() + current.toString());
 			default:
 				throw `Unknown oepreator ${operators[index - 1]}`;
 		}
