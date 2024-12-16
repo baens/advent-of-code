@@ -40,7 +40,7 @@ export function findAntinodePath(
 	const xSlope = locations[1].x - locations[0].x;
 	const ySlope = locations[1].y - locations[0].y;
 
-	const antiNodes: Location[] = [];
+	const antiNodes: Location[] = [location1, location2];
 
 	let currentX = locations[0].x - xSlope;
 	let currentY = locations[0].y - ySlope;
